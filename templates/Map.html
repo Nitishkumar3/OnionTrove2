@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Relay Map</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Inter', sans-serif;
+    }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    .mapboxgl-ctrl-logo{display: none !important;}
+    .mapboxgl-ctrl-bottom-right{display: none !important;}
+    #search-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1;
+      background-color: white;
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+    }
+    #search-input { 
+      width: 300px; 
+      padding: 10px; 
+      margin-right: 5px;
+      flex-grow: 1;
+      font-size: 16px; 
+      font-family: 'Inter', sans-serif;
+    }
+    #search-button, .zoom-button {
+      padding: 10px 15px; 
+      background-color: #4264fb;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px; 
+      font-family: 'Inter', sans-serif;
+    }
+    #zoom-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1;
+    }
+
+    .mapboxgl-popup-content {
+      max-width: 300px;
+      font-family: 'Inter', sans-serif;
+    }
+    .fingerprint {word-break: break-all; font-size: 0.8em;}
+    .nickname{font-size:1.6em;}
+    .read-more {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 5px 10px;
+      background-color: #4264fb;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-family: 'Inter', sans-serif;
+    }
+    .autocomplete-items {
+      position: absolute;
+      border: 1px solid #d4d4d4;
+      border-bottom: none;
+      border-top: none;
+      z-index: 99;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Inter', sans-serif;
+    }
+    .autocomplete-items div {
+      padding: 10px;
+      cursor: pointer;
+      background-color: #fff; 
+      border-bottom: 1px solid #d4d4d4; 
+    }
+    .autocomplete-items div:hover {
+      background-color: #e9e9e9; 
+    }
+    .autocomplete-active {
+      background-color: DodgerBlue !important; 
+      color: #ffffff; 
+    }
+    .autocomplete-item-details {
+      font-size: 0.8em;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div id="search-container">
+    <div class="autocomplete" style="flex-grow: 1;">
+      <input type="text" id="search-input" placeholder="Search by Nickname / Fingerprint...">
+    </div>
+    <button id="search-button">Search</button>
+  </div>
+  <div id="zoom-controls">
+    <button id="zoom-in" class="zoom-button">+</button>
+    <button id="zoom-out" class="zoom-button">-</button>
+  </div>
+  <div id="map"></div>
+  <script>
+    mapboxgl.accessToken = '{{ MapboxAPI }}';
+
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [0, 0],
+      zoom: 2,
+      projection: 'globe'
+    });
+
+    map.on('style.load', () => {
+            map.setFog({});
+        });
+
+    function offsetPoint(coord, index) {
+      const offsetDistance = 0.0001;
+      const angle = (index % 8) * Math.PI / 4;
+      return [
+        coord[0] + offsetDistance * Math.cos(angle),
+        coord[1] + offsetDistance * Math.sin(angle)
+      ];
+    }
+
+    let clickedPopup = null;
+    let relayData = [];
+
+    map.on('load', () => {
+      fetch('/relays')
+        .then(response => response.json())
+        .then(data => {
+          relayData = data;
+          const coordMap = new Map();
+          const geoJsonData = {
+            type: "FeatureCollection",
+            features: data.map(item => {
+              const key = `${item.longitude},${item.latitude}`;
+              const count = coordMap.get(key) || 0;
+              coordMap.set(key, count + 1);
+              const coordinates = offsetPoint([parseFloat(item.latitude), parseFloat(item.longitude)], count);
+              return {
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: coordinates
+                },
+                properties: item
+              };
+            })
+          };
+
+          map.addSource('places', { type: 'geojson', data: geoJsonData });
+          
+          map.addLayer({
+            id: 'places',
+            type: 'circle',
+            source: 'places',
+            paint: {
+              'circle-color': '#4264fb',
+              'circle-radius': 6,
+              'circle-stroke-width': 2,
+              'circle-stroke-color': '#ffffff'
+            }
+          });
+
+          map.addLayer({
+            id: 'highlighted-places',
+            type: 'circle',
+            source: 'places',
+            paint: {
+              'circle-color': '#ff0000',
+              'circle-radius': 8,
+              'circle-stroke-width': 2,
+              'circle-stroke-color': '#ffffff'
+            },
+            filter: ['in', 'nickname', '']
+          });
+
+          function createPopup(properties, coordinates) {
+            const description = `
+              <strong><span class="nickname">${properties.nickname}</span></strong><br>
+              <strong>Fingerprint:</strong> <span class="fingerprint">${properties.fingerprint}</span><br>
+              <strong>City:</strong> ${properties.city}<br>
+              <strong>Region:</strong> ${properties.region}<br>
+              <strong>Country:</strong> ${properties.country_name}<br>
+              <a href="/data/${properties.fingerprint}" class="read-more" target="_blank">Read More</a>
+            `;
+            
+            return new mapboxgl.Popup({
+              closeButton: true,
+              closeOnClick: false
+            })
+              .setLngLat(coordinates)
+              .setHTML(description);
+          }
+
+          map.on('click', 'places', (e) => {
+            e.preventDefault();
+            if (clickedPopup) {
+              clickedPopup.remove();
+            }
+            clickedPopup = createPopup(e.features[0].properties, e.features[0].geometry.coordinates).addTo(map);
+          });
+
+          map.on('mouseenter', 'places', () => {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+
+          map.on('mouseleave', 'places', () => {
+            map.getCanvas().style.cursor = '';
+          });
+
+          map.on('click', (e) => {
+            if (clickedPopup && (!e.originalEvent.target.closest('.mapboxgl-popup') && 
+                !e.originalEvent.target.closest('.mapboxgl-canvas-container'))) {
+              clickedPopup.remove();
+              clickedPopup = null;
+            }
+          });
+
+          function performSearch(searchTerm) {
+            const matchingFeatures = geoJsonData.features.filter(feature => 
+              feature.properties.nickname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              feature.properties.fingerprint.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            if (matchingFeatures.length > 0) {
+              const bounds = new mapboxgl.LngLatBounds();
+              matchingFeatures.forEach(feature => bounds.extend(feature.geometry.coordinates));
+              map.fitBounds(bounds, { padding: 50 });
+              map.setFilter('highlighted-places', ['in', 'nickname', ...matchingFeatures.map(f => f.properties.nickname)]);
+              
+              if (clickedPopup) {
+                clickedPopup.remove();
+              }
+              clickedPopup = createPopup(matchingFeatures[0].properties, matchingFeatures[0].geometry.coordinates).addTo(map);
+            } else {
+              alert('No matching relays found.');
+            }
+          }
+
+          document.getElementById('search-button').addEventListener('click', () => {
+            performSearch(document.getElementById('search-input').value);
+          });
+
+          document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch(e.target.value);
+          });
+
+          document.getElementById('zoom-in').addEventListener('click', () => map.zoomIn());
+          document.getElementById('zoom-out').addEventListener('click', () => map.zoomOut());
+
+          function autocomplete(inp, arr) {
+            var currentFocus;
+            inp.addEventListener("input", function(e) {
+              var a, b, i, val = this.value;
+              closeAllLists();
+              if (!val) { return false;}
+              currentFocus = -1;
+              a = document.createElement("DIV");
+              a.setAttribute("id", this.id + "autocomplete-list");
+              a.setAttribute("class", "autocomplete-items");
+              this.parentNode.appendChild(a);
+              let count = 0;
+              for (i = 0; i < arr.length && count < 5; i++) {
+                if (arr[i].nickname.substr(0, val.length).toUpperCase() == val.toUpperCase() ||
+                    arr[i].fingerprint.substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                  b = document.createElement("DIV");
+                  if (arr[i].nickname.substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                    b.innerHTML = "<strong>" + arr[i].nickname.substr(0, val.length) + "</strong>";
+                    b.innerHTML += arr[i].nickname.substr(val.length);
+                    b.innerHTML +="<br>";
+                  } else {
+                    b.innerHTML = arr[i].nickname + "<br>";
+                  }
+                  b.innerHTML += "<span class='autocomplete-item-details'>";
+                  b.innerHTML += `${arr[i].city}, ${arr[i].region}, ${arr[i].country_name}</span>`;
+                  b.innerHTML += "<input type='hidden' value='" + arr[i].nickname + "'>";
+                  b.addEventListener("click", function(e) {
+                    inp.value = this.getElementsByTagName("input")[0].value;
+                    closeAllLists();
+                    performSearch(inp.value);
+                  });
+                  a.appendChild(b);
+                  count++;
+                }
+              }
+            });
+            inp.addEventListener("keydown", function(e) {
+              var x = document.getElementById(this.id + "autocomplete-list");
+              if (x) x = x.getElementsByTagName("div");
+              if (e.keyCode == 40) {
+                currentFocus++;
+                addActive(x);
+              } else if (e.keyCode == 38) {
+                currentFocus--;
+                addActive(x);
+              } else if (e.keyCode == 13) {
+                e.preventDefault();
+                if (currentFocus > -1) {
+                  if (x) x[currentFocus].click();
+                }
+              }
+            });
+            function addActive(x) {
+              if (!x) return false;
+              removeActive(x);
+              if (currentFocus >= x.length) currentFocus = 0;
+              if (currentFocus < 0) currentFocus = (x.length - 1);
+              x[currentFocus].classList.add("autocomplete-active");
+            }
+            function removeActive(x) {
+              for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove("autocomplete-active");
+              }
+            }
+            function closeAllLists(elmnt) {
+              var x = document.getElementsByClassName("autocomplete-items");
+              for (var i = 0; i < x.length; i++) {
+                if (elmnt != x[i] && elmnt != inp) {
+                  x[i].parentNode.removeChild(x[i]);
+                }
+              }
+            }
+            document.addEventListener("click", function (e) {
+              closeAllLists(e.target);
+            });
+          }
+
+          autocomplete(document.getElementById("search-input"), relayData);
+        })
+        .catch(error => console.error('Error loading data:', error));
+    });
+
+
+    const secondsPerRevolution = 360;
+    const maxSpinZoom = 5;
+    const slowSpinZoom = 3;
+
+    let userInteracting = false;
+    const spinEnabled = true;
+
+    function spinGlobe() {
+        const zoom = map.getZoom();
+        if (spinEnabled && !userInteracting && zoom < maxSpinZoom) {
+            let distancePerSecond = 360 / secondsPerRevolution;
+            if (zoom > slowSpinZoom) {
+                const zoomDif =
+                    (maxSpinZoom - zoom) / (maxSpinZoom - slowSpinZoom);
+                distancePerSecond *= zoomDif;
+            }
+            const center = map.getCenter();
+            center.lng -= distancePerSecond;
+            map.easeTo({ center, duration: 1000, easing: (n) => n });
+        }
+    }
+
+    map.on('mousedown', () => {
+        userInteracting = true;
+    });
+    map.on('dragstart', () => {
+        userInteracting = true;
+    });
+
+    map.on('moveend', () => {
+        spinGlobe();
+    });
+
+    spinGlobe();
+  </script>
+</body>
+</html>
