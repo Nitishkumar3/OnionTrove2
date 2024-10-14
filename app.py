@@ -20,8 +20,14 @@ app = Flask(__name__)
 Compress(app) 
 
 @app.route('/map')
-def index():
+def map():
     return render_template('map.html', MapboxAPI=MapboxAPI)
+
+@app.route('/relays')
+def relays():
+    with open('static/TorRelaysDataTable.json', 'r') as file:
+        TorRelaysDataTable = json.load(file)
+    return render_template('relays.html', TorRelaysDataTable=TorRelaysDataTable)
 
 if __name__ == '__main__':
     app.run(debug=True)

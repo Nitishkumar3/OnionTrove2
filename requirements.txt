@@ -1,3 +1,5 @@
 python-dotenv
 psycopg2
 pymongo
+flask
+flask-compress

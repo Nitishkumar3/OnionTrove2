@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html class="h-full bg-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://fa6p.pages.dev/css/all.min.css" rel="stylesheet">    
+    <style>
+        .Hidden { display: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: "Inter", sans-serif;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .pagination-scroll {
+            display: flex;
+            overflow-x: auto;
+            max-width: calc(100vw - 2rem);
+            scrollbar-width: thin;
+            scrollbar-color: #4f46e5 #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .pagination-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .pagination-scroll::-webkit-scrollbar-track {
+            background: #e5e7eb;
+        }
+        .pagination-scroll::-webkit-scrollbar-thumb {
+            background-color: #4f46e5;
+            border-radius: 3px;
+        }
+        .pagination-button {
+            min-width: 2rem;
+            height: 2rem;
+            margin: 0 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+    </style>
+</head>
+<body class="h-full">
+<main class="py-10">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="sm:flex sm:items-center">
+                <div class="sm:flex-auto">
+                    <h1 class="text-xl font-semibold text-gray-900">Tor Relays</h1>
+                    <p class="mt-2 text-sm text-gray-700">A list of Tor relay nodes.</p>
+                </div>
+            </div>
+            <div class="mt-8 flow-root">
+                <div class="mb-4 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <label for="rowsPerPage" class="mr-2 text-sm font-medium text-gray-700">Rows per page:</label>
+                        <select id="rowsPerPage" class="w-24 rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                            <option value="20">20</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                    <div class="w-64">
+                        <label for="searchInput" class="sr-only">Search</label>
+                        <input type="text" id="searchInput" class="block w-full outline-none rounded-md border-0 py-1.5 pl-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Search">
+                    </div>
+                      
+                </div>
+                <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="inline-block min-w-full py-2 align-middle">
+                        <table id="userTable" class="min-w-full divide-y divide-gray-300">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0 draggable" draggable="true" data-column="ID">
+                                        ID
+                                        <button class="sort-btn ml-1" data-column="ID" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0 draggable" draggable="true" data-column="Name">
+                                        Name
+                                        <button class="sort-btn ml-1" data-column="Name" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 draggable" draggable="true" data-column="IP Address">
+                                        IP Address
+                                        <button class="sort-btn ml-1" data-column="IP Address" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 draggable" draggable="true" data-column="City">
+                                        City
+                                        <button class="sort-btn ml-1" data-column="City" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 draggable" draggable="true" data-column="Country">
+                                        Country
+                                        <button class="sort-btn ml-1" data-column="Country" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 draggable" draggable="true" data-column="ISP">
+                                        Running
+                                        <button class="sort-btn ml-1" data-column="ISP" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 draggable" draggable="true" data-column="Consensus Weight">
+                                        Consensus
+                                        <button class="sort-btn ml-1" data-column="Consensus Weight" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 draggable" draggable="true" data-column="Guard Probability">
+                                        Guard %
+                                        <button class="sort-btn ml-1" data-column="Guard Probability" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 draggable" draggable="true" data-column="Middle Probability">
+                                        Middle %
+                                        <button class="sort-btn ml-1" data-column="Middle Probability" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 draggable" draggable="true" data-column="Exit Probability">
+                                        Exit %
+                                        <button class="sort-btn ml-1" data-column="Exit Probability" data-sort="default">
+                                            <i class="fa-solid fa-sort"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="pagination" class="pagination-container">
+            </div>
+        </div> 
+    </div>
+</main>
+
+<script>
+let currentPage = 1;
+let rowsPerPage = 50;
+let sortColumn = 'ID';
+let sortDirection = 'default';
+let filteredUsers = [];
+let allUsers = {{ TorRelaysDataTable|tojson|safe }};
+let columnOrder = ['ID', 'Name', 'IP Address', 'City', 'Country', 'Running', 'Consensus Weight', 'Guard Probability', 'Middle Probability', 'Exit Probability'];
+
+const tableBody = document.querySelector('#userTable tbody');
+const tableHead = document.querySelector('#userTable thead');
+const paginationContainer = document.getElementById('pagination');
+const rowsPerPageSelect = document.getElementById('rowsPerPage');
+const searchInput = document.getElementById('searchInput');
+
+function renderTable() {
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const paginatedUsers = filteredUsers.slice(start, end);
+
+    tableBody.innerHTML = '';
+    paginatedUsers.forEach(user => {
+        const row = document.createElement('tr');
+        columnOrder.forEach(column => {
+            const cell = document.createElement('td');
+            cell.className = "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0";
+            cell.textContent = user[column];
+            row.appendChild(cell);
+        });
+
+        // Add Actions column
+        const actionsCell = document.createElement('td');
+        actionsCell.className = "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0";
+        actionsCell.innerHTML = `<a href="#" class="bg-indigo-600 text-white hover:bg-indigo-700 py-2 px-4 rounded">View <i class="fa-solid fa-arrow-right ml-1"></i></a>`;
+        row.appendChild(actionsCell);
+
+        tableBody.appendChild(row);
+    });
+
+    renderPagination();
+    updateSortIcons();
+}
+
+function renderPagination() {
+    const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+    paginationContainer.innerHTML = '';
+
+    const paginationScroll = document.createElement('div');
+    paginationScroll.className = 'pagination-scroll';
+
+    // Previous button
+    const prevButton = createPaginationButton('<i class="fa-solid fa-caret-left"></i>', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }, currentPage === 1);
+    paginationContainer.appendChild(prevButton);
+
+    paginationContainer.appendChild(paginationScroll);
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        const button = createPaginationButton(i, () => {
+            currentPage = i;
+            renderTable();
+        }, currentPage === i);
+        paginationScroll.appendChild(button);
+    }
+
+    // Next button
+    const nextButton = createPaginationButton('<i class="fa-solid fa-caret-right"></i>', () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTable();
+        }
+    }, currentPage === totalPages);
+    paginationContainer.appendChild(nextButton);
+}
+
+function createPaginationButton(content, onClick, isDisabled) {
+    const button = document.createElement('button');
+    button.innerHTML = content;
+    button.className = `pagination-button ${isDisabled ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-100'} ${typeof content === 'number' && content === currentPage ? 'bg-indigo-600 text-white' : ''}`;
+    button.disabled = isDisabled;
+    button.addEventListener('click', onClick);
+    return button;
+}
+
+function updateSortIcons() {
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        const column = btn.dataset.column;
+        const icon = btn.querySelector('i');
+
+        if (column === sortColumn) {
+            icon.className = sortDirection === 'asc' ? 'fa-solid fa-sort-up' :
+                              sortDirection === 'desc' ? 'fa-solid fa-sort-down' :
+                              'fa-solid fa-sort';
+        } else {
+            icon.className = 'fa-solid fa-sort';
+        }
+    });
+}
+
+function sortUsers(column) {
+    if (column === sortColumn) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 
+                        sortDirection === 'desc' ? 'default' : 'asc';
+    } else {
+        sortColumn = column;
+        sortDirection = 'asc';
+    }
+
+    if (sortDirection !== 'default') {
+        filteredUsers.sort((a, b) => {
+            const valueA = a[column];
+            const valueB = b[column];
+
+            if (typeof valueA === 'string' && typeof valueB === 'string') {
+                return sortDirection === 'asc' 
+                    ? valueA.localeCompare(valueB) 
+                    : valueB.localeCompare(valueA);
+            } else {
+                return sortDirection === 'asc' 
+                    ? valueA - valueB 
+                    : valueB - valueA;
+            }
+        });
+    } else {
+        // Reset to original order
+        filteredUsers.sort((a, b) => a.ID - b.ID);
+    }
+
+    currentPage = 1;
+    renderTable();
+}
+
+function filterUsers() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+
+    filteredUsers = allUsers.filter(user => {
+        return Object.entries(user).some(([key, value]) => {
+            // Convert the value to a string and check if it includes the search term
+            return String(value).toLowerCase().includes(searchTerm);
+        });
+    });
+
+    currentPage = 1;
+    renderTable();
+}
+
+function addSortListeners() {
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => sortUsers(btn.dataset.column));
+    });
+}
+
+// Event listeners
+rowsPerPageSelect.addEventListener('change', (e) => {
+    rowsPerPage = e.target.value === 'all' ? filteredUsers.length : parseInt(e.target.value);
+    currentPage = 1;
+    renderTable();
+});
+
+searchInput.addEventListener('input', filterUsers);
+
+// Initialize the table
+window.addEventListener('load', () => {
+    filteredUsers = [...allUsers];
+    renderTable();
+    addSortListeners();
+});
+</script>
+</body>
+</html>

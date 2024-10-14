@@ -166,4 +166,33 @@ def UpdateTorNodeData(RelaysDataJSON):
     with open('static/MapTorRelaysData.json', 'w') as json_file:
         json.dump(ExistingTorRelaysData, json_file, indent=4)
 
+    TorRelaysDataTable = [
+        {
+            'ID': index + 1,
+            'Name': relay.get('nickname'),
+            'IP Address': relay.get('ip'),
+            'City': relay.get('city'),
+            'Country': relay.get('country_name'),
+            'Running': str(relay.get('running')),
+            'Consensus Weight': relay.get('consensus_weight'),
+            'Guard Probability': relay.get('guard_probability'),
+            'Middle Probability': relay.get('middle_probability'),
+            'Exit Probability': relay.get('exit_probability'),
+        }
+        for index, relay in enumerate(db.TorRelayData.find({}, {
+            'nickname': 1,
+            'ip': 1,
+            'city': 1,
+            'country_name': 1,
+            'running': 1,
+            'consensus_weight': 1,
+            'guard_probability': 1,
+            'middle_probability': 1,
+            'exit_probability': 1
+        }))
+    ]
+
+    with open('static/TorRelaysDataTable.json', 'w') as json_file:
+        json.dump(TorRelaysDataTable, json_file, indent=4)
+
 print(CheckForUpdates())
