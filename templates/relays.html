@@ -165,6 +165,7 @@ let sortColumn = 'ID';
 let sortDirection = 'default';
 let filteredUsers = [];
 let allUsers = {{ TorRelaysDataTable|tojson|safe }};
+
 let columnOrder = ['ID', 'Name', 'IP Address', 'City', 'Country', 'Running', 'Consensus Weight', 'Guard Probability', 'Middle Probability', 'Exit Probability'];
 
 const tableBody = document.querySelector('#userTable tbody');

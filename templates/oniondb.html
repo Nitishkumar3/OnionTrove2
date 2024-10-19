@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="h-full bg-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://fa6p.pages.dev/css/all.min.css" rel="stylesheet">    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body { font-family: "Inter", sans-serif; }
+        .pagination-container { display: flex; justify-content: center; align-items: center; margin-top: 1rem; }
+        .pagination-scroll { display: flex; overflow-x: auto; max-width: calc(100vw - 2rem); scrollbar-width: thin; scrollbar-color: #4f46e5 #e5e7eb; padding-bottom: 0.5rem; }
+        .pagination-scroll::-webkit-scrollbar { height: 6px; }
+        .pagination-scroll::-webkit-scrollbar-track { background: #e5e7eb; }
+        .pagination-scroll::-webkit-scrollbar-thumb { background-color: #4f46e5; border-radius: 3px; }
+        .pagination-button { min-width: 2rem; height: 2rem; margin: 0 0.25rem; display: flex; align-items: center; justify-content: center; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; }
+    </style>
+</head>
+<body class="h-full">
+<main class="py-10">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-xl font-semibold text-gray-900">Tor Relays</h1>
+            <p class="mt-2 text-sm text-gray-700">A list of Tor relay nodes.</p>
+            <div class="mt-8 flow-root">
+                <div class="mb-4 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <label for="rowsPerPage" class="mr-2 text-sm font-medium text-gray-700">Rows per page:</label>
+                        <select id="rowsPerPage" class="w-24 rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                            <option value="20">20</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                    <div class="w-64">
+                        <input type="text" id="searchInput" class="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Search">
+                    </div>
+                </div>
+                <table id="userTable" class="min-w-full divide-y divide-gray-300">
+                    <thead>
+                        <tr>
+                            <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                            </th>
+
+                            <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">ID <button class="sort-btn ml-1" data-column="ID"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Name <button class="sort-btn ml-1" data-column="Name"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">IP Address <button class="sort-btn ml-1" data-column="IP Address"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">City <button class="sort-btn ml-1" data-column="City"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Country <button class="sort-btn ml-1" data-column="Country"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Running <button class="sort-btn ml-1" data-column="Running"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Consensus <button class="sort-btn ml-1" data-column="Consensus Weight"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Guard % <button class="sort-btn ml-1" data-column="Guard Probability"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Middle % <button class="sort-btn ml-1" data-column="Middle Probability"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Exit % <button class="sort-btn ml-1" data-column="Exit Probability"><i class="fa-solid fa-sort"></i></button></th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white"></tbody>
+                </table>
+            </div>
+            <div id="pagination" class="pagination-container"></div>
+        </div> 
+    </div>
+</main>
+
+<script>
+let currentPage = 1, rowsPerPage = 50, sortColumn = 'ID', sortDirection = 'default', filteredUsers = [];
+const allUsers = [
+    {"ID": 1, "Name": "seele", "IP Address": "104.53.221.159", "City": "San Jose", "Country": "United States", "Running": "True", "Consensus Weight": 500, "Guard Probability": 0.0, "Middle Probability": 1.18524895e-05, "Exit Probability": 0.0},
+    {"ID": 2, "Name": "tor4novgnet", "IP Address": "5.196.8.113", "City": "Strasbourg", "Country": "France", "Running": "True", "Consensus Weight": 11000, "Guard Probability": 5.738137e-06, "Middle Probability": 5.736605e-06, "Exit Probability": 0.00024931997},
+    {"ID": 3, "Name": "SENDNOOSEplz", "IP Address": "204.137.14.106", "City": "Aachen", "Country": "Germany", "Running": "True", "Consensus Weight": 16000, "Guard Probability": 8.346381e-06, "Middle Probability": 8.344153e-06, "Exit Probability": 0.00036264723},
+    {"ID": 4, "Name": "titamon3", "IP Address": "178.218.144.18", "City": "Frankfurt am Main", "Country": "Germany", "Running": "True", "Consensus Weight": 14000, "Guard Probability": 7.3030837e-06, "Middle Probability": 7.301134e-06, "Exit Probability": 0.00031731633}
+];
+const columnOrder = ['ID', 'Name', 'IP Address', 'City', 'Country', 'Running', 'Consensus Weight', 'Guard Probability', 'Middle Probability', 'Exit Probability'];
+
+function renderTable() {
+    const start = (currentPage - 1) * rowsPerPage;
+    const paginatedUsers = filteredUsers.slice(start, start + rowsPerPage);
+    document.querySelector('#userTable tbody').innerHTML = paginatedUsers.map(user => `
+        <tr>
+            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                <input type="checkbox" class="user-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" data-id="${user.ID}">
+            </td>
+            ${columnOrder.map(column => `<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">${user[column]}</td>`).join('')}
+            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0"><a href="#" class="bg-indigo-600 text-white hover:bg-indigo-700 py-2 px-4 rounded">View <i class="fa-solid fa-arrow-right ml-1"></i></a></td>
+        </tr>
+    `).join('');
+    renderPagination();
+    updateSortIcons();
+    setupCheckboxListeners();
+}
+
+function setupCheckboxListeners() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const userCheckboxes = document.querySelectorAll('.user-checkbox');
+
+    selectAllCheckbox.addEventListener('change', () => {
+        userCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+    });
+
+    userCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            selectAllCheckbox.checked = Array.from(userCheckboxes).every(cb => cb.checked);
+        });
+    });
+}
+
+function renderPagination() {
+    const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+    const paginationContainer = document.getElementById('pagination');
+    paginationContainer.innerHTML = `
+        <button class="pagination-button text-gray-600 hover:bg-gray-100" ${currentPage === 1 ? 'disabled' : ''}><i class="fa-solid fa-caret-left"></i></button>
+        <div class="pagination-scroll">${Array.from({length: totalPages}, (_, i) => i + 1).map(page => 
+            `<button class="pagination-button ${page === currentPage ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100'}">${page}</button>`
+        ).join('')}</div>
+        <button class="pagination-button text-gray-600 hover:bg-gray-100" ${currentPage === totalPages ? 'disabled' : ''}><i class="fa-solid fa-caret-right"></i></button>
+    `;
+    paginationContainer.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+        if (btn.textContent === '<') currentPage--;
+        else if (btn.textContent === '>') currentPage++;
+        else currentPage = parseInt(btn.textContent);
+        renderTable();
+    }));
+}
+
+function updateSortIcons() {
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        const column = btn.dataset.column;
+        btn.querySelector('i').className = column === sortColumn ? 
+            `fa-solid fa-sort-${sortDirection === 'asc' ? 'up' : sortDirection === 'desc' ? 'down' : ''}` : 
+            'fa-solid fa-sort';
+    });
+}
+
+function sortUsers(column) {
+    sortDirection = column === sortColumn ? 
+        (sortDirection === 'asc' ? 'desc' : sortDirection === 'desc' ? 'default' : 'asc') : 'asc';
+    sortColumn = column;
+    filteredUsers.sort((a, b) => {
+        const valueA = a[column], valueB = b[column];
+        if (sortDirection === 'default') return a.ID - b.ID;
+        return sortDirection === 'asc' ? 
+            (typeof valueA === 'string' ? valueA.localeCompare(valueB) : valueA - valueB) :
+            (typeof valueA === 'string' ? valueB.localeCompare(valueA) : valueB - valueA);
+    });
+    currentPage = 1;
+    renderTable();
+}
+
+document.getElementById('rowsPerPage').addEventListener('change', e => {
+    rowsPerPage = e.target.value === 'all' ? filteredUsers.length : parseInt(e.target.value);
+    currentPage = 1;
+    renderTable();
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+    const searchTerm = e.target.value.toLowerCase();
+    filteredUsers = allUsers.filter(user => Object.values(user).some(value => String(value).toLowerCase().includes(searchTerm)));
+    currentPage = 1;
+    renderTable();
+});
+
+document.querySelectorAll('.sort-btn').forEach(btn => btn.addEventListener('click', () => sortUsers(btn.dataset.column)));
+
+window.addEventListener('load', () => {
+    filteredUsers = [...allUsers];
+    renderTable();
+    setupCheckboxListeners();
+});
+</script>
+</body>
+</html>

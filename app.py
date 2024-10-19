@@ -2,13 +2,15 @@ from dotenv import load_dotenv
 import os
 import json
 import psycopg2
+from psycopg2 import sql
+from psycopg2.extras import RealDictCursor
 from pymongo import MongoClient
 from flask import Flask, jsonify, render_template, request, jsonify, session, redirect, url_for, flash
 from flask_compress import Compress
-from psycopg2.extras import RealDictCursor
 from functools import wraps
 import jwt
 from datetime import datetime, timedelta
+from GenAI import Llama31Instant8B, DorkAI
 
 load_dotenv()
 
@@ -75,22 +77,69 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+@app.route('/')
+def index():
+    return "Hi"
+
 @app.route('/dashboard')
 @IsLoggedIn
 def dashboard():
-    return "Hi"
+    return render_template("dashboard.html")
+
+### Keywords
+@app.route('/keywords')
+@IsLoggedIn
+def keywords():
+    with psycopg2.connect(**Postgres) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM keywords")
+            keywords = cur.fetchall()
+            keywords = json.dumps(dict(keywords))
+            print(keywords)
+    return render_template("keywords.html", keywords=keywords)
+
+# Add Keyword
+@app.route('/keywords/add', methods=['POST'])
+@IsLoggedIn
+def addkeyword():
+    keyword = request.form['keyword']
+    with psycopg2.connect(**Postgres) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT sno FROM dorks WHERE dork = %s", (keyword,))
+            existing_record = cur.fetchone()
+            if existing_record is None:
+                insert_query = sql.SQL("INSERT INTO dorks (dork, timesused, lastused, dateadded) VALUES (%s, 0, NULL, CURRENT_TIMESTAMP)")
+                cur.execute(insert_query, (keyword,))
+            #     flash("Inserted new keyword")
+            # else:
+            #     flash("Keyword already exists")
+            conn.commit()
+    return redirect(url_for('keywords'))
+
+# AI
+@app.route('/keywords/ai', methods=['POST'])
+@IsLoggedIn
+def aidork():
+    prompt = request.form['prompt']
+    dorks = DorkAI(prompt)
+    print(dorks)
+    # flash()
+    return redirect(url_for('keywords'))
 
 @app.route('/map')
+@IsLoggedIn
 def map():
     return render_template('map.html', MapboxAPI=MapboxAPI)
 
 @app.route('/relays')
+@IsLoggedIn
 def relays():
     with open('static/TorRelaysDataTable.json', 'r') as file:
         TorRelaysDataTable = json.load(file)
     return render_template('relays.html', TorRelaysDataTable=TorRelaysDataTable)
 
 @app.route('/api/stats', methods=['GET'])
+@IsLoggedIn
 def StatsAPI():
     try:
         with psycopg2.connect(**Postgres) as conn:

@@ -18,3 +18,11 @@ CREATE TABLE TorMetrics (
     TorNetworkAdvertisedBandwidth FLOAT,
     TorNetworkConsumedBandwidth FLOAT
 );
+
+CREATE TABLE dorks (
+    sno SERIAL PRIMARY KEY,          
+    dork TEXT NOT NULL,              
+    timesused INTEGER DEFAULT 0,     
+    lastused TIMESTAMP,              
+    dateadded TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+);
