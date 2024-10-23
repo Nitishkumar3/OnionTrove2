@@ -406,62 +406,121 @@
             
           <!-- Table Header -->
           <div class="sm:flex sm:items-center">
-              <div class="sm:flex-auto">
-                  <h1 class="text-xl font-semibold text-gray-900">Keywords / Dorks</h1>
-                  <p class="mt-2 text-sm text-gray-700">A list of keywords used for dorking</p>
-              </div>
-              <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-                  <button type="button" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"><i class="fa-regular fa-tornado fa-lg"></i> &nbsp; Dork</button>
-              </div>
+            <div class="sm:flex-auto">
+                <h1 class="text-xl font-semibold text-gray-900">Keywords / Dorks</h1>
+                <p class="mt-2 text-sm text-gray-700">A list of keywords used for dorking</p>
+            </div>
+            <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                <button id="dorkButton" type="button" class="hidden block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" disabled><i class="fa-regular fa-tornado fa-lg"></i> &nbsp; Dork</button>
+            </div>
           </div>
 
           <!-- Table -->
           <div class="mt-8 flow-root">
-            <div class="mb-4 flex justify-between items-center">
-                <div class="flex items-center">
-                    <label for="rowsPerPage" class="mr-2 text-sm font-medium text-gray-700">Rows per page:</label>
-                    <select id="rowsPerPage" class="w-24 rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="all">All</option>
-                    </select>
-                </div>
-                <div class="w-64">
-                    <label for="searchInput" class="sr-only">Search</label>
-                    <input type="text" id="searchInput" class="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Search...">
-                </div>
-            </div>
-            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div class="inline-block min-w-full py-2 align-middle">
-                    <table id="keywordsTable" class="min-w-full divide-y divide-gray-300">
-                        <thead>
-                            <tr>
-                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-                                    <div class="flex items-center h-5">
-                                        <input type="checkbox" id="selectAll" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                                    </div>
-                                </th>
-                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">S.No</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Keyword</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Times Used</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Last Used</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Date Added</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+          <div class="mb-4 flex justify-between items-center">
+              <div class="flex items-center">
+                  <label for="rowsPerPage" class="mr-2 text-sm font-medium text-gray-700">Rows per page:</label>
+                  <select id="rowsPerPage" class="w-24 rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                      <option value="5">5</option>
+                      <option value="10" selected>10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="all">All</option>
+                  </select>
+              </div>
+              <div class="w-64">
+                  <label for="searchInput" class="sr-only">Search</label>
+                  <input type="text" id="searchInput" class="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Search...">
+              </div>
           </div>
-        
+          <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+              <div class="inline-block min-w-full py-2 align-middle">
+                  <table id="keywordsTable" class="min-w-full divide-y divide-gray-300">
+                      <thead>
+                          <tr>
+                              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Select</th>
+                              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">S.No</th>
+                              <!-- <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Keyword</th> -->
+                              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-96">Keyword</th>
+                              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Times Used</th>
+                              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Last Used</th>
+                              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Date Added</th>
+                              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
+                          </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-200 bg-white">
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          </div>
+
+          <!-- Pagination -->
           <div id="pagination" class="mt-4 flex justify-center items-center">
           </div>
-      </div>
-  </main>
+
+          <!-- Dork Modal -->
+          <div id="dorkModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                  Dork Form
+                </h3>
+                <div class="mt-2">
+                  <form id="dorkForm">
+                    <input type="hidden" id="selectedKeywords" name="selectedKeywords">
+                    <!-- Add other form fields here -->
+                  </form>
+                </div>
+              </div>
+              <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                  Submit
+                </button>
+                <button type="button" id="closeModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <!-- Add this modal HTML just before the closing div.main -->
+          <div id="editModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+              <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+              <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+              <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                    Edit Keyword
+                  </h3>
+                  <div class="mt-2">
+                    <form id="editForm" action="/keywords/edit" method="POST">
+                      <input type="hidden" id="editKeywordId" name="id">
+                      <div class="mt-4">
+                        <label for="editKeywordInput" class="block text-sm font-medium text-gray-700">Keyword</label>
+                        <input type="text" name="keyword" id="editKeywordInput" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button type="submit" form="editForm" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Save Changes
+                  </button>
+                  <button type="button" id="closeEditModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
 </div>
 
@@ -559,7 +618,18 @@
   const paginationContainer = document.getElementById('pagination');
   const rowsPerPageSelect = document.getElementById('rowsPerPage');
   const searchInput = document.getElementById('searchInput');
-  const selectAllCheckbox = document.getElementById('selectAll');
+  const dorkButton = document.getElementById('dorkButton');
+  const dorkModal = document.getElementById('dorkModal');
+  const closeModal = document.getElementById('closeModal');
+  const selectedKeywordsInput = document.getElementById('selectedKeywords');
+
+  // Add these variables at the top with other declarations
+const editModal = document.getElementById('editModal');
+const closeEditModal = document.getElementById('closeEditModal');
+const editForm = document.getElementById('editForm');
+const editKeywordInput = document.getElementById('editKeywordInput');
+const editKeywordId = document.getElementById('editKeywordId');
+
 
   function formatDateTime(dateTimeStr) {
       if (!dateTimeStr) return 'N/A';
@@ -580,24 +650,59 @@
           row.innerHTML = `
               <td class="py-4 pl-4 pr-3 sm:pl-6">
                   <div class="flex items-center h-5">
-                      <input type="checkbox" class="keyword-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                      <input type="checkbox" class="keyword-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" data-keyword="${keyword.keyword}">
                   </div>
               </td>
               <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">${start + index + 1}</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${keyword.keyword}</td>
+              <td class="px-3 py-4 text-sm text-gray-500">${keyword.keyword}</td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${keyword.timesused}</td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${lastUsed}</td>
               <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${dateAdded}</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm font-medium">
-                  <a href="/keywords/edit/${keyword.id}" class="bg-blue-600 text-white hover:bg-blue-700 py-2 px-4 rounded mr-2"><i class="fa-regular fa-pen-to-square mr-1"></i> Edit</a>
-                  <a href="/keywords/delete/${keyword.id}" class="bg-red-600 text-white hover:bg-red-700 py-2 px-4 rounded"><i class="fa-regular fa-trash mr-1"></i> Delete</a>
-              </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm font-medium">
+                <button type="button" 
+                        class="edit-button bg-blue-600 text-white hover:bg-blue-700 py-2 px-4 rounded mr-2"
+                        data-id="${keyword.id}"
+                        data-keyword="${keyword.keyword}">
+                    <i class="fa-regular fa-pen-to-square mr-1"></i> Edit
+                </button>
+                <a href="/keywords/delete/${keyword.id}" class="bg-red-600 text-white hover:bg-red-700 py-2 px-4 rounded">
+                    <i class="fa-regular fa-trash mr-1"></i> Delete
+                </a>
+            </td>
           `;
           tableBody.appendChild(row);
       });
 
+          // Add event listeners for edit buttons
+    document.querySelectorAll('.edit-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const id = button.dataset.id;
+            const keyword = button.dataset.keyword;
+            openEditModal(id, keyword);
+        });
+    });
+
       renderPagination();
+      updateCheckboxListeners();
   }
+
+  // Add these functions to handle the edit modal
+function openEditModal(id, keyword) {
+    editKeywordId.value = id;
+    editKeywordInput.value = keyword;
+    editModal.classList.remove('hidden');
+}
+
+closeEditModal.addEventListener('click', () => {
+    editModal.classList.add('hidden');
+});
+
+// Close modal when clicking outside
+editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) {
+        editModal.classList.add('hidden');
+    }
+});
 
   function renderPagination() {
       const totalPages = Math.ceil(filteredKeywords.length / rowsPerPage);
@@ -653,6 +758,42 @@
       renderTable();
   }
 
+  function updateCheckboxListeners() {
+      const checkboxes = document.querySelectorAll('.keyword-checkbox');
+      checkboxes.forEach(checkbox => {
+          checkbox.addEventListener('change', updateDorkButton);
+      });
+  }
+
+  function updateDorkButton() {
+      const checkedBoxes = document.querySelectorAll('.keyword-checkbox:checked');
+      const checkedCount = checkedBoxes.length;
+
+      if (checkedCount > 0 && checkedCount <= 3) {
+          dorkButton.classList.remove('hidden');
+          dorkButton.disabled = false;
+      } else {
+          dorkButton.classList.add('hidden');
+          dorkButton.disabled = true;
+      }
+
+      if (checkedCount > 3) {
+          dorkButton.classList.remove('hidden');
+          this.checked = false;
+      }
+  }
+
+  dorkButton.addEventListener('click', () => {
+      const checkedBoxes = document.querySelectorAll('.keyword-checkbox:checked');
+      const selectedKeywords = Array.from(checkedBoxes).map(cb => cb.dataset.keyword);
+      selectedKeywordsInput.value = JSON.stringify(selectedKeywords);
+      dorkModal.classList.remove('hidden');
+  });
+
+  closeModal.addEventListener('click', () => {
+      dorkModal.classList.add('hidden');
+  });
+
   rowsPerPageSelect.addEventListener('change', (e) => {
       rowsPerPage = e.target.value === 'all' ? filteredKeywords.length : parseInt(e.target.value);
       currentPage = 1;
@@ -660,11 +801,6 @@
   });
 
   searchInput.addEventListener('input', filterKeywords);
-
-  selectAllCheckbox.addEventListener('change', () => {
-      const checkboxes = document.querySelectorAll('.keyword-checkbox');
-      checkboxes.forEach(checkbox => checkbox.checked = selectAllCheckbox.checked);
-  });
 
   renderTable();
 </script>
