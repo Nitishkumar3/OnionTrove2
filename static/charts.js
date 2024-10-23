@@ -1,31 +1,56 @@
-// Data for the charts
-const chartData = {
-    categories: [
-        "2023-01-17 00:00:00", "2023-01-16 00:00:00", "2023-01-15 00:00:00",
-        "2023-01-14 00:00:00", "2023-01-13 00:00:00", "2023-01-12 00:00:00",
-        "2023-01-11 00:00:00", "2023-01-10 00:00:00", "2023-01-09 00:00:00",
-        "2023-01-08 00:00:00"
-    ],
-    values: [
-        [8720, 8715, 8715, 8712, 8720, 8720, 8725, 8725, 8725, 8720],
-        [2460, 2454, 2458, 2460, 2459, 2455, 2460, 2458, 2458, 2460],
-        [5050052, 5050053, 5050055, 5050055, 5050050, 5050055, 5050057, 5050056, 5050057, 5050055],
-        [798120, 798090, 798040, 798025, 798060, 798080, 798070, 798090, 798110, 798130]
-    ]
-};
+async function fetchTorMetrics() {
+    try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
 
-// Configuration for the charts
+        if (data && data.dates && data.values) {
+            const chartData = {
+                categories: data.dates,
+                values: [
+                    data.values.torusers,
+                    data.values.onionsites,
+                    data.values.onionservicebandwidth,
+                    data.values.torrelays,
+                    data.values.torbridges,
+                    data.values.torrelayusers,
+                    data.values.torbridgeusers,
+                    data.values.tornetworkadvertisedbandwidth,
+                    data.values.tornetworkconsumedbandwidth
+                ]
+            };
+
+            createAllCharts(chartData);
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+
+function normalizeData(values) {
+    const maxValue = Math.max(...values);
+    return values.map(value => (value / maxValue) * 100);
+}
+
 const chartConfigs = [
-    { id: "chart1", color: '#FF5733', name: 'Orange Series' },
-    { id: "chart2", color: '#3498DB', name: 'Blue Series' },
-    { id: "chart3", color: '#27AE60', name: 'Green Series' },
-    { id: "chart4", color: '#F39C12', name: 'Yellow Series' }
+    { id: "chart1", color: '#27AE60', name: 'Tor Users' },
+    { id: "chart8", color: ['#FF69B4', '#6667AB'], name: ['Tor Advertised Bandwidth', 'Tor Consumed Bandwidth'] },
+    { id: "chart2", color: '#F39C12', name: 'Onion Sites' },
+    { id: "chart3", color: '#7F00FF', name: 'Onion Service Bandwidth' },
+    { id: "chart4", color: '#FF5733', name: 'Tor Relays' },
+    { id: "chart5", color: '#3498DB', name: 'Tor Bridges' },
+    { id: "chart6", color: '#005F60', name: 'Tor Relay Users' },
+    { id: "chart7", color: '#7D1007', name: 'Tor Bridge Users' }
+
 ];
 
-// Function to create a single chart
+
 function createChart(containerId, categories, values, color, seriesName) {
     const options = {
-        series: [{
+        series: Array.isArray(seriesName) ? seriesName.map((name, i) => ({
+            name: name,
+            data: values[i]
+        })) : [{
             name: seriesName,
             data: values,
         }],
@@ -42,23 +67,29 @@ function createChart(containerId, categories, values, color, seriesName) {
         },
         xaxis: {
             type: 'datetime',
-            categories: categories.map(date => new Date(date).toISOString()),
+            categories: categories.map(date => new Date(date).getTime()),
         },
         tooltip: {
             x: { format: 'dd/MM/yy HH:mm' },
         },
-        colors: [color],
+        colors: Array.isArray(color) ? color : [color],
     };
 
     new ApexCharts(document.querySelector(`#${containerId}`), options).render();
 }
 
-// Function to create all charts
-function createAllCharts() {
+
+function createAllCharts(chartData) {
     chartConfigs.forEach((config, index) => {
-        createChart(config.id, chartData.categories, chartData.values[index], config.color, config.name);
+        if (config.id === "chart8") {
+
+            const advertisedBandwidth = normalizeData(chartData.values[7]);
+            const consumedBandwidth = normalizeData(chartData.values[8]);
+            createChart(config.id, chartData.categories, [advertisedBandwidth, consumedBandwidth], config.color, config.name);
+        } else {
+            createChart(config.id, chartData.categories, chartData.values[index], config.color, config.name);
+        }
     });
 }
 
-// Initialize charts
-document.addEventListener('DOMContentLoaded', createAllCharts);
+document.addEventListener('DOMContentLoaded', fetchTorMetrics);
