@@ -26,10 +26,14 @@ async function fetchTorMetrics() {
     }
 }
 
+function normalizeData(data) {
+    const min = Math.min(...data);
+    const max = Math.max(...data);
 
-function normalizeData(values) {
-    const maxValue = Math.max(...values);
-    return values.map(value => (value / maxValue) * 100);
+    return data.map(value => {
+        const normalizedValue = (value - min) / (max - min);
+        return parseFloat(normalizedValue.toFixed(2));
+    });
 }
 
 const chartConfigs = [
@@ -41,7 +45,6 @@ const chartConfigs = [
     { id: "chart6", color: '#005F60', name: 'Tor Relay Users' },
     { id: "chart7", color: '#7D1007', name: 'Tor Bridge Users' },
     { id: "chart8", color: ['#FF69B4', '#6667AB'], name: ['Tor Advertised Bandwidth', 'Tor Consumed Bandwidth'] }
-
 ];
 
 
@@ -71,6 +74,11 @@ function createChart(containerId, categories, values, color, seriesName) {
         },
         tooltip: {
             x: { format: 'dd/MM/yy HH:mm' },
+            y: {
+                formatter: function(value) {
+                    return value.toFixed(2);
+                }
+            }
         },
         colors: Array.isArray(color) ? color : [color],
     };
@@ -78,14 +86,15 @@ function createChart(containerId, categories, values, color, seriesName) {
     new ApexCharts(document.querySelector(`#${containerId}`), options).render();
 }
 
-
 function createAllCharts(chartData) {
     chartConfigs.forEach((config, index) => {
         if (config.id === "chart8") {
-
             const advertisedBandwidth = normalizeData(chartData.values[7]);
             const consumedBandwidth = normalizeData(chartData.values[8]);
             createChart(config.id, chartData.categories, [advertisedBandwidth, consumedBandwidth], config.color, config.name);
+        } else if (config.id === "chart3") {
+            const onionServiceBandwidth = normalizeData(chartData.values[1]);
+            createChart(config.id, chartData.categories, onionServiceBandwidth, config.color, config.name);
         } else {
             createChart(config.id, chartData.categories, chartData.values[index], config.color, config.name);
         }
