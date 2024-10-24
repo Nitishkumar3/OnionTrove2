@@ -133,8 +133,10 @@ function createAllCharts(chartData) {
             const consumedBandwidth = normalizeData(chartData.values[8]);
             createChart(config.id, chartData.categories, [advertisedBandwidth, consumedBandwidth], config.color, config.name);
         } else if (config.id === "chart3") {
-            const onionServiceBandwidth = normalizeData(chartData.values[1]);
-            createChart(config.id, chartData.categories, onionServiceBandwidth, config.color, config.name);
+            // Format each value in chartData.values[1] to 2 decimal places
+            const onionServiceBandwidth = chartData.values[1].map(value => parseFloat(value).toFixed(2));
+        
+            createChart(config.id, chartData.categories, onionServiceBandwidth, config.color, config.name);        
         } else {
             createChart(config.id, chartData.categories, chartData.values[index], config.color, config.name);
         }

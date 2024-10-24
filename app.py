@@ -11,8 +11,9 @@ from functools import wraps
 import jwt
 from datetime import datetime, timedelta
 from GenAI import DorkAI
-from werkzeug.exceptions import BadRequest, InternalServerError
-from typing import List, Set
+from typing import List
+import logging
+from logging.handlers import RotatingFileHandler
 
 load_dotenv()
 
@@ -27,6 +28,10 @@ db = client['oniontrovedb']
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SecretKey')
 Compress(app) 
+
+handler = RotatingFileHandler('./logs/error.log', maxBytes=10000, backupCount=5)
+handler.setLevel(logging.ERROR)
+app.logger.addHandler(handler)
 
 def IsLoggedIn(f):
     @wraps(f)
