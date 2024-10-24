@@ -8,8 +8,8 @@ async function fetchTorMetrics() {
                 categories: data.dates,
                 values: [
                     data.values.torusers,
-                    data.values.onionsites,
                     data.values.onionservicebandwidth,
+                    data.values.onionsites,
                     data.values.torrelays,
                     data.values.torbridges,
                     data.values.torrelayusers,
@@ -34,13 +34,13 @@ function normalizeData(values) {
 
 const chartConfigs = [
     { id: "chart1", color: '#27AE60', name: 'Tor Users' },
-    { id: "chart8", color: ['#FF69B4', '#6667AB'], name: ['Tor Advertised Bandwidth', 'Tor Consumed Bandwidth'] },
-    { id: "chart2", color: '#F39C12', name: 'Onion Sites' },
     { id: "chart3", color: '#7F00FF', name: 'Onion Service Bandwidth' },
+    { id: "chart2", color: '#F39C12', name: 'Onion Sites' },
     { id: "chart4", color: '#FF5733', name: 'Tor Relays' },
     { id: "chart5", color: '#3498DB', name: 'Tor Bridges' },
     { id: "chart6", color: '#005F60', name: 'Tor Relay Users' },
-    { id: "chart7", color: '#7D1007', name: 'Tor Bridge Users' }
+    { id: "chart7", color: '#7D1007', name: 'Tor Bridge Users' },
+    { id: "chart8", color: ['#FF69B4', '#6667AB'], name: ['Tor Advertised Bandwidth', 'Tor Consumed Bandwidth'] }
 
 ];
 
