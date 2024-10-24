@@ -20,11 +20,51 @@ async function fetchTorMetrics() {
             };
 
             createAllCharts(chartData);
+            displayData(chartData);
         }
     } catch (error) {
         console.error("Error fetching data:", error);
     }
 }
+
+function displayData(displayData) {
+    const activetorrelaystoday = displayData["values"][3][0];
+    const activetorrelaysyesterday = displayData["values"][3][1];
+
+    const activetorbridgestoday = displayData["values"][4][0];
+    const activetorbridgesyesterday = displayData["values"][4][1];
+
+    const activetoruserstoday = displayData["values"][0][0];
+    const activetorusersyesterday = displayData["values"][0][1];
+
+    const activeonionsitestoday = displayData["values"][2][0];
+    const activeonionsitesyesterday = displayData["values"][2][1];
+
+    const activetorrelayspercentagechange = (((activetorrelaystoday - activetorrelaysyesterday) / activetorrelaysyesterday) * 100).toFixed(2);
+    const activetorbridgespercentagechange = (((activetorbridgestoday - activetorbridgesyesterday) / activetorbridgesyesterday) * 100).toFixed(2);
+    const activetoruserspercentagechange = (((activetoruserstoday - activetorusersyesterday) / activetorusersyesterday) * 100).toFixed(2);
+    const activeonionsitespercentagechange = (((activeonionsitestoday - activeonionsitesyesterday) / activeonionsitesyesterday) * 100).toFixed(2);
+
+    document.getElementById("activeTorRelays").innerText = activetorrelaystoday.toLocaleString();
+    document.getElementById("relayChange").innerText = `${activetorrelayspercentagechange}%`;
+    document.getElementById("activeTorBridges").innerText = activetorbridgestoday.toLocaleString();
+    document.getElementById("bridgeChange").innerText = `${activetorbridgespercentagechange}%`;
+    document.getElementById("activeTorUsers").innerText = activetoruserstoday.toLocaleString();
+    document.getElementById("userChange").innerText = `${activetoruserspercentagechange}%`;
+    document.getElementById("activeOnionSites").innerText = activeonionsitestoday.toLocaleString();
+    document.getElementById("onionChange").innerText = `${activeonionsitespercentagechange}%`;
+
+    const setColor = (id, percentage) => {
+        const element = document.getElementById(id);
+        element.className = percentage > 0 ? "text-xs font-medium text-green-600" : "text-xs font-medium text-rose-600";
+    };
+
+    setColor("relayChange", activetorrelayspercentagechange);
+    setColor("bridgeChange", activetorbridgespercentagechange);
+    setColor("userChange", activetoruserspercentagechange);
+    setColor("onionChange", activeonionsitespercentagechange);
+}
+
 
 function normalizeData(data) {
     const min = Math.min(...data);

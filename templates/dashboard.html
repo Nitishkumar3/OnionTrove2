@@ -346,30 +346,28 @@
       <main class="px-4 sm:px-6 max-w-10xl mx-auto"> 
         <div class="w-full bg-white-200 px-4 py-6">
           <dl class="mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8 rounded-lg border-2 border-gray-200">
-              <dt class="text-sm font-medium leading-6 text-gray-500">Active Tor Relays</dt>
-              <dd class="text-xs font-medium text-green-700">+4.75%</dd>
-              <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-gray-900 mb-2">8,748</dd>
-            </div>
-            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8 rounded-lg border-2 border-gray-200">
-              <dt class="text-sm font-medium leading-6 text-gray-500">Active Tor Bridges</dt>
-              <dd class="text-xs font-medium text-rose-600">+54.02%</dd>
-              <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-gray-900 mb-2">2,484</dd>
-            </div>
-            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8 rounded-lg border-2 border-gray-200">
-              <dt class="text-sm font-medium leading-6 text-gray-500">Active Tor Users</dt>
-              <dd class="text-xs font-medium text-green-700">-1.39%</dd>
-              <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-gray-900 mb-2">50,50,088</dd>
-            </div>
-            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8 rounded-lg border-2 border-gray-200">
-              <dt class="text-sm font-medium leading-6 text-gray-500">Active Onion Sites</dt>
-              <dd class="text-xs font-medium text-rose-600">+10.18%</dd>
-              <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-gray-900 mb-2">7,99,363</dd>
-            </div>
+              <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8 rounded-lg border-2 border-gray-200">
+                  <dt class="text-sm font-medium leading-6 text-gray-500">Active Tor Relays</dt>
+                  <dd class="text-xs font-medium" id="relayChange"></dd>
+                  <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-gray-900 mb-2" id="activeTorRelays"></dd>
+              </div>
+              <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8 rounded-lg border-2 border-gray-200">
+                  <dt class="text-sm font-medium leading-6 text-gray-500">Active Tor Bridges</dt>
+                  <dd class="text-xs font-medium" id="bridgeChange"></dd>
+                  <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-gray-900 mb-2" id="activeTorBridges"></dd>
+              </div>
+              <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8 rounded-lg border-2 border-gray-200">
+                  <dt class="text-sm font-medium leading-6 text-gray-500">Active Tor Users</dt>
+                  <dd class="text-xs font-medium" id="userChange"></dd>
+                  <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-gray-900 mb-2" id="activeTorUsers"></dd>
+              </div>
+              <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8 rounded-lg border-2 border-gray-200">
+                  <dt class="text-sm font-medium leading-6 text-gray-500">Active Onion Sites</dt>
+                  <dd class="text-xs font-medium" id="onionChange"></dd>
+                  <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-gray-900 mb-2" id="activeOnionSites"></dd>
+              </div>
           </dl>
         </div>
-        
-
 
         <div class="w-full bg-white-200 px-4 py-6">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -407,9 +405,6 @@
             </div>
           </div>
         </div>
-        
-
-
       </main>
     </div>
 </div>
